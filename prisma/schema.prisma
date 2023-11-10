@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @unique @default(uuid())
+  name           String   @db.VarChar(120)
+  registerNumber Int      @unique
+  password       String   @db.VarChar(255)
+  createdAt      DateTime @default(now())
+  active         Boolean  @default(true)
+
+  @@map("users")
+}
+
+model Product {
+  id                String             @id @unique @default(uuid())
+  name              String             @db.VarChar(120)
+  codebar           String             @unique @db.VarChar(20)
+  quantity          Int
+  description       String?            @db.Text
+  unityPrice        Decimal
+  validity          DateTime
+  lot               String             @db.VarChar(50)
+  orderProductsDist OrderProductDist[]
+  orderProductsSup  OrderProductSup[]
+
+  @@map("products")
+}
+
+model OrderProductSup {
+  id         String   @id @unique @default(uuid())
+  quantity   Int
+  product    Product  @relation(references: [id], fields: [productId])
+  productId  String
+  orderSup   OrderSup @relation(references: [id], fields: [orderSupId])
+  orderSupId String
+
+  @@map("order_product_sup")
+}
+
+model OrderSup {
+  id              String            @id @unique @default(uuid())
+  createdAt       DateTime          @default(now())
+  value           Decimal
+  supplier        Supplier          @relation(references: [id], fields: [supplierId])
+  supplierId      String
+  OrderProductSup OrderProductSup[]
+
+  @@map("order_sup")
+}
+
+model Supplier {
+  id           String     @id @unique @default(uuid())
+  name         String     @unique @db.VarChar(120)
+  partnerSince DateTime
+  OrderSup     OrderSup[]
+
+  @@map("suppliers")
+}
+
+model OrderProductDist {
+  id          String    @id @unique @default(uuid())
+  quantity    Int
+  product     Product   @relation(references: [id], fields: [productId])
+  productId   String
+  orderDist   OrderDist @relation(references: [id], fields: [orderDistId])
+  orderDistId String
+
+  @@map("order_product_dist")
+}
+
+model OrderDist {
+  id                String             @id @unique @default(uuid())
+  createdAt         DateTime           @default(now())
+  value             Decimal
+  distributor       Distributor        @relation(references: [id], fields: [distributorId])
+  distributorId     String
+  orderProductsDist OrderProductDist[]
+
+  @@map("order_dist")
+}
+
+model Distributor {
+  id           String      @id @unique @default(uuid())
+  name         String      @unique @db.VarChar(120)
+  partnerSince DateTime
+  ordersDist   OrderDist[]
+
+  @@map("distributors")
+}
