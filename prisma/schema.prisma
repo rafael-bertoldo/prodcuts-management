@@ -27,9 +27,9 @@ model Product {
   codebar           String             @unique @db.VarChar(20)
   quantity          Int
   description       String?            @db.Text
-  unityPrice        Decimal
-  validity          DateTime
-  lot               String             @db.VarChar(50)
+  unityPrice        Float              @db.DoublePrecision
+  dueDate          DateTime
+  batch             String             @db.VarChar(50)
   orderProductsDist OrderProductDist[]
   orderProductsSup  OrderProductSup[]
 
@@ -50,7 +50,7 @@ model OrderProductSup {
 model OrderSup {
   id              String            @id @unique @default(uuid())
   createdAt       DateTime          @default(now())
-  value           Decimal
+  value           Float             @db.DoublePrecision
   supplier        Supplier          @relation(references: [id], fields: [supplierId])
   supplierId      String
   OrderProductSup OrderProductSup[]
@@ -81,7 +81,7 @@ model OrderProductDist {
 model OrderDist {
   id                String             @id @unique @default(uuid())
   createdAt         DateTime           @default(now())
-  value             Decimal
+  value             Float              @db.DoublePrecision
   distributor       Distributor        @relation(references: [id], fields: [distributorId])
   distributorId     String
   orderProductsDist OrderProductDist[]
